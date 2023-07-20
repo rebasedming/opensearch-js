@@ -79,6 +79,30 @@ class BoolQuery extends Query {
         return this;
     }
 
+    neural(fields, queryValue) {
+        if (!Array.isArray(fields) || typeof queryValue !== 'string') {
+            throw new TypeError('Expected fields to be an array and queryValue to be a string');
+        }
+    
+        const neuralQueries = fields.map(field => ({
+            "script_score": {
+                "query": {
+                    "neural": {
+                        [field]: {
+                            "query_text": queryValue
+                        }
+                    }
+                },
+                "script": {
+                    "source": "_score"
+                }
+            }
+        }));
+    
+        this.should(neuralQueries);
+        return this;
+    }
+
     /**
      * Adds `filter` query to boolean container.
      * The clause (query) **must** appear in matching documents. However unlike `must` the score
